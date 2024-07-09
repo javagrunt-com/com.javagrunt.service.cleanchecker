@@ -19,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 
+@SuppressWarnings("removal")
 @RestController
 class CheckController {
 
@@ -36,18 +37,11 @@ class CheckController {
 
     @GetMapping("/check")
     public ImageAnalysis check() {
-        //todo make call to get image data (bin or base64)
         byte[] capture = cleanClient.getCapture();
-
-//        var userMessage = new UserMessage(
-//                "Is this room clean and why or why not?",
-//                List.of(new Media(MimeTypeUtils.IMAGE_JPEG, capture))
-//        );
-
         return chatClient.prompt()
                 .user(userSpec -> {
                     userSpec
-                            .text("Is this room clean and why or why not?")
+                            .text("Is the room in this picture clean?")
                             .media(new Media(MimeTypeUtils.IMAGE_JPEG, capture));
                 })
                 .call()

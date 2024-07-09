@@ -1,7 +1,6 @@
 spring:
     ai:
-        openai:
-            api-key: ${SPRING_AI_OPENAI_API_KEY}
+        ollama:
             chat:
                 options:
-                    model: gpt-4o
+                    model: llava
