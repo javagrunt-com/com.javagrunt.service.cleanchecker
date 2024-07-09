@@ -1,6 +1,7 @@
 spring:
     ai:
         ollama:
+            base-url: http://zephyrus:11434
             chat:
                 options:
                     model: llava
