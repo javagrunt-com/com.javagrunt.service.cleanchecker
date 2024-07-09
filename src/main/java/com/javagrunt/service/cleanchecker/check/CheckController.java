@@ -28,7 +28,7 @@ class CheckController {
     
     public CheckController(ChatClient.Builder chatClientBuilder) {
         this.chatClient = chatClientBuilder.build();
-        WebClient webClient = WebClient.builder().baseUrl("http://satellite:8080").build();
+        WebClient webClient = WebClient.builder().baseUrl("http://100.86.31.107:8080").build();
         WebClientAdapter adapter = WebClientAdapter.create(webClient);
         HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(adapter).build();
 
@@ -46,6 +46,19 @@ class CheckController {
                 })
                 .call()
                 .entity(ImageAnalysis.class);
+    }
+
+    @GetMapping("/unstructured")
+    public String unstructured() {
+        byte[] capture = cleanClient.getCapture();
+        return chatClient.prompt()
+                .user(userSpec -> {
+                    userSpec
+                            .text("Is this room clean and why or why not?")
+                            .media(new Media(MimeTypeUtils.IMAGE_JPEG, capture));
+                })
+                .call()
+                .content();
     }
     
 }
