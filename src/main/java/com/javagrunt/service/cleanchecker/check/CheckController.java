@@ -2,7 +2,6 @@ package com.javagrunt.service.cleanchecker.check;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.Media;
-import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,25 +9,18 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.support.WebClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.List;
-
 @SuppressWarnings("removal")
 @RestController
 class CheckController {
 
     private final ChatClient chatClient;
     private final CleanClient cleanClient;
-    
+    private static final String USER_TEXT = "Is the room in this picture clean?";
+    private static final String SYSTEM_TEXT = "You are in charge of making sure the children keep their rooms clean.  Clutter is not allowed.  Beds need to be made.  Doors and drawers should be closed.";
+
     public CheckController(ChatClient.Builder chatClientBuilder) {
         this.chatClient = chatClientBuilder.build();
-        WebClient webClient = WebClient.builder().baseUrl("http://100.86.31.107:8080").build();
+        WebClient webClient = WebClient.builder().baseUrl("http://satellite:8080").build();
         WebClientAdapter adapter = WebClientAdapter.create(webClient);
         HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(adapter).build();
 
@@ -41,9 +33,10 @@ class CheckController {
         return chatClient.prompt()
                 .user(userSpec -> {
                     userSpec
-                            .text("Is the room in this picture clean?")
+                            .text(USER_TEXT)
                             .media(new Media(MimeTypeUtils.IMAGE_JPEG, capture));
                 })
+                .system(SYSTEM_TEXT)
                 .call()
                 .entity(ImageAnalysis.class);
     }
@@ -54,11 +47,12 @@ class CheckController {
         return chatClient.prompt()
                 .user(userSpec -> {
                     userSpec
-                            .text("Is this room clean and why or why not?")
+                            .text(USER_TEXT)
                             .media(new Media(MimeTypeUtils.IMAGE_JPEG, capture));
                 })
+                .system(SYSTEM_TEXT)
                 .call()
                 .content();
     }
-    
+
 }
